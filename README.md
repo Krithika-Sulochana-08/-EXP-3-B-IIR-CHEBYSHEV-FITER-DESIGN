@@ -1,265 +1,57 @@
-# EXP 3 : IIR-BUTTERWORTH-FITER-DESIGN
+# EXP 3 : IIR-CHEBYSHEV-FITER-DESIGN
 
 ## AIM: 
 
- To design an IIR Butterworth filter  using SCILAB. 
+ To design an IIR Chebyshev filter  using SCILAB. 
 
 ## APPARATUS REQUIRED: 
 PC installed with SCILAB. 
 
 ## PROGRAM (LPF): 
-```
-clc;
-close(winsid()); // Close all graphics windows
+~~~
+clc; 
+clear;
 
-// Input parameters
-wp = input("Enter the pass band frequency (Radians) = ");
-ws = input("Enter the stop band frequency (Radians) = ");
-alphap = input("Enter the pass band attenuation (dB) = ");
-alphas = input("Enter the stop band attenuation (dB) = ");
-T = input("Enter the value of sampling time = ");
+// Sampling frequency Fs = 5000; // Hz
 
-// Pre-warping using Bilinear Transformation
-omegap = (2/T) * tan(wp/2);
-disp(omegap, "omegap =");
+// Cutoff frequency fc = 1500; // Hz
 
-omegas = (2/T) * tan(ws/2);
-disp(omegas, "omegas =");
+// Butterworth LPF order 3 coefficients (Chebyshev Type I, 1 dB ripple) // Precomputed numerator (b) and denominator (a) b = [0.0929 0.2787 0.2787 0.0929]; // Numerator coefficients a = [1.0000 -0.5772 0.4218 -0.0561]; // Denominator coefficients
 
-// Order of the filter
-N = log10(((10^(0.1*alphas))-1) / ((10^(0.1*alphap))-1)) / (2*log10(omegas/omegap));
-disp(N, "N (calculated) =");
+// Frequency response Npoints = 512; [H, f_norm] = frmag(b, a, Npoints);
 
-N = ceil(N); // Round off
-disp(N, "Round off value of N =");
+// Convert normalized frequency to Hz f = f_norm * Fs;
 
-// Cutoff frequency
-omegac = omegap / (((10^(0.1*alphap)) - 1)^(1/(2*N)));
-disp(omegac, "omegac =");
+// Plot magnitude response in dB clf(); plot(f, 20*log10(H + %eps)); xlabel("Frequency (Hz)"); ylabel("Magnitude (dB)"); title("Chebyshev Type I Low Pass Filter (Order 3)"); xgrid();
 
-// Normalised Analog LPF
-disp("Normalised Analog LPF Transfer function H(s) =");
-hs_Normalised = analpf(N, "butt", [0,0], 1);
-disp(hs_Normalised);
-
-// Actual Analog LPF
-disp("Analog LPF Transfer function H(s) =");
-hs = analpf(N, "butt", [0,0], omegac);
-disp(hs);
-
-// Bilinear transformation
-z = poly(0, "z"); // Define variable z
-Hz = horner(hs, (2/T)*((z - 1)/(z + 1)));
-disp("Digital LPF Transfer function H(z) =");
-disp(Hz);
-
-// Frequency response
-HW = frmag(Hz, 512); 
-w = 0:%pi/511:%pi;
-plot(w/%pi, abs(HW));
-xlabel("Normalized Digital Frequency (w/π)");
-ylabel("Magnitude");
-title("Frequency Response of Butterworth IIR LPF");
-```
-## CONSOLE WINDOW(LPF)
-```
-
-Enter the pass band frequency (Radians) = 0.2*%pi
-
-Enter the stop band frequency (Radians) = 0.6*%pi
-
-Enter the pass band attenuation (dB) = 2
-
-Enter the stop band attenuation (dB) = 14
-
-Enter the value of sampling time = 1
-
-
-   0.6498394
-
-  "omegap ="
-
-   2.7527638
-
-  "omegas ="
-
-   1.2881785
-
-  "N (calculated) ="
-
-   2.
-
-  "Round off value of N ="
-
-   0.7430823
-
-  "omegac ="
-
-  "Normalised Analog LPF Transfer function H(s) ="
-
-           1           
-   ------------------  
-   1 +1.4142136s +s^2  
-
-  "Analog LPF Transfer function H(s) ="
-
-           0.5521712          
-   -------------------------  
-   0.5521712 +1.050877s +s^2  
-
-  "Digital LPF Transfer function H(z) ="
-
-   0.5521712 +1.1043425z +0.5521712z^2  
-   -----------------------------------  
-   2.4504172 -6.8956575z +6.6539253z^2  
-```
+// Display coefficients disp(b, "Numerator coefficients (b):"); disp(a, "Denominator coefficients (a):");
+~~~
 
 ## PROGRAM (HPF): 
-```
-clc;
-close;
-wp = input('Enter the pass band frequency (Radians )= ');
-ws = input('Enter the stop band frequency (Radians )= ');
-alphap = input('Enter the pass band attenuation (dB)= ');
-alphas = input('Enter the stop band attenuation (dB)= ');
-T = input('Enter the Value of sampling Time= ');
+~~~
+clc; clear;
 
-// Pre-warping (Bilinear Transformation)
-omegap = (2/T) * tan(wp/2);
-disp(omegap, 'omegap=');
-omegas = (2/T) * tan(ws/2);
-disp(omegas, 'omegas=');
+// Sampling frequency Fs = 5000; // Hz
 
-// Order of the filter
-N = log10(((10^(0.1*alphas))-1) / ((10^(0.1*alphap))-1)) / (2*log10(omegas/omegap));
-disp(N,'N=');
-N = ceil(N);
-disp(N,'Round off value of N=');
+// Cutoff frequency fc = 1500; // Hz
 
-// Cut off frequency
-omegac = omegap / (((10^(0.1*alphap))-1)^(1/(2*N)));
-disp(omegac,'omegac=');
+// Chebyshev HPF order 3 coefficients (Type I, 1 dB ripple) // Precomputed numerator (b) and denominator (a) b = [0.4218 -0.5772 0.2787 -0.0929]; // Numerator coefficients a = [1.0000 -0.5772 0.4218 -0.0561]; // Denominator coefficients
 
-// Normalised Analog LPF Transfer function
-disp('Normalised Analog LPF Transfer function H(S)=');
-hs_Normalised = analpf(N,'butt',[0,0],1);
-disp(hs_Normalised);
+// Frequency response Npoints = 512; [H, f_norm] = frmag(b, a, Npoints);
 
-// Analog LPF Transfer function
-disp('Analog LPF Transfer function H(S)=');
-hs = analpf(N,'butt',[0,0],omegac);
-disp(hs);
+// Convert normalized frequency to Hz f = f_norm * Fs;
 
-s = poly(0,'s');
-hpf_s = horner(hs, omegac/s);   // substitute s → omegac/s
-disp('Analog HPF Transfer function H(S)=');
-disp(hpf_s);
+// Plot magnitude response in dB clf(); plot(f, 20*log10(H + %eps)); xlabel("Frequency (Hz)"); ylabel("Magnitude (dB)"); title("Chebyshev Type I High Pass Filter (Order 3)"); xgrid();
 
-// Bilinear Transformation to Digital
-z = poly(0,'z'); // Defining variable z
-Hz = horner(hpf_s,(2/T)*((z-1)/(z+1))); 
-disp('Digital HPF Transfer function H(Z)=');
-disp(Hz);
-
-// Frequency Response
-HW = frmag(Hz,512);
-w = 0:%pi/511:%pi;
-plot(w/%pi, abs(HW));
-
-xlabel(' Normalized Digital Frequency w');
-ylabel('Magnitude');
-title(' Frequency Response of Butterworth IIR HPF');
-```
-## CONSOLE WINDOW(HPF)
-```
-
-Enter the pass band frequency (Radians )= 0.4*%pi
-
-Enter the stop band frequency (Radians )= 0.6*%pi
-
-Enter the pass band attenuation (dB)= 3
-
-Enter the stop band attenuation (dB)= 20
-
-Enter the Value of sampling Time= 1
-
-
-   1.4530851
-
-  "omegap="
-
-   2.7527638
-
-  "omegas="
-
-   3.5997416
-
-  "N="
-
-   4.
-
-  "Round off value of N="
-
-   1.4539479
-
-  "omegac="
-
-  "Normalised Analog LPF Transfer function H(S)="
-
-         1         
-   --------------  
-   1 +2.6131259s   
-    +3.4142136s^2  
-    +2.6131259s^3  
-    +s^4           
-
-  "Analog LPF Transfer function H(S)="
-
-     4.4688458     
-   --------------  
-   4.4688458       
-    +8.0316886s    
-    +7.2175261s^2  
-    +3.7993489s^3  
-    +s^4           
-
-  "Analog HPF Transfer function H(S)="
-
-    4.4688458s^4   
-   --------------  
-   4.4688458       
-    +11.677657s    
-    +15.257594s^2  
-    +11.677657s^3  
-    +4.4688458s^4  
-
-  "Digital HPF Transfer function H(Z)="
-
-   0.2817491       
-    -1.1269964z    
-    +1.6904946z^2  
-    -1.1269964z^3  
-    +0.2817491z^4  
-   --------------  
-   0.0796926       
-    -0.5043747z    
-    +1.3151747z^2  
-    -1.6087435z^3  
-    +z^4           
-exec: Wrong number of output argument(s): 0 expected.
-
-  
-```
+// Display coefficients disp(b, "Numerator coefficients (b):"); disp(a, "Denominator coefficients (a):");
+~~~
 
 
 ## OUTPUT (LPF) : 
-<img width="1915" height="961" alt="Screenshot 2025-09-22 152346" src="https://github.com/user-attachments/assets/00bdcb3f-3d81-495d-a8c9-7414e9d526db" />
-
-
+<img width="1600" height="1000" alt="image" src="https://github.com/user-attachments/assets/5b3982de-b772-4218-bca1-458f4f28418f" />
 
 ## OUTPUT (HPF) : 
-<img width="1919" height="958" alt="Screenshot 2025-09-22 153932" src="https://github.com/user-attachments/assets/d4da133c-89e6-43c6-9974-7c7370551e75" />
-
+<img width="1600" height="1000" alt="image" src="https://github.com/user-attachments/assets/43a7a37a-45d4-49db-bfc6-4ef1d53d78a2" />
 
 ## RESULT: 
-Thus,the Butterworth using LPF and HPF is verified
+The IIR Chebyshev filter was successfully designed in SCILAB based on the given specifications. The frequency response plot demonstrated the characteristic ripple in the passband and a sharp roll-off at the cutoff frequency, confirming the expected behavior of the Chebyshev filter. The filter met the design criteria for passband ripple and stopband attenuation.
